@@ -2,6 +2,7 @@
 
 #include <cassert>
 #include <cstdlib>
+#include <algorithm>
 
 template <typename Type>
 class ArrayPtr {
@@ -16,6 +17,7 @@ public:
             raw_ptr_ = nullptr;
         } else {
             raw_ptr_ = new Type[size];
+            std::generate_n(raw_ptr_, size, [](){return Type();});
         }
     }
 
@@ -40,6 +42,14 @@ public:
 
     // Запрещаем присваивание
     ArrayPtr& operator=(const ArrayPtr&) = delete;
+
+    // Перемещение присваиванием
+    ArrayPtr& operator=(ArrayPtr&& rhs) {
+        if (this != rhs) {
+            std::swap(raw_ptr_, rhs.raw_ptr_);
+        }
+        return *this;
+    }
 
     // Прекращает владением массивом в памяти, возвращает значение адреса массива
     // После вызова метода указатель на массив должен обнулиться
@@ -70,15 +80,12 @@ public:
 
     // Возвращает значение сырого указателя, хранящего адрес начала массива
     Type* Get() const noexcept {
-        // Заглушка. Реализуйте метод самостоятельно
         return raw_ptr_;
     }
 
     // Обменивается значениям указателя на массив с объектом other
     void swap(ArrayPtr& other) noexcept {
-        Type* tmp = other.raw_ptr_;
-        other.raw_ptr_ = raw_ptr_;
-        raw_ptr_ = tmp;
+        std::swap(raw_ptr_, other.raw_ptr_);
     }
 
 private:

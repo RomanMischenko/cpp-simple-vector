@@ -32,8 +32,13 @@ private:
 };
 
 SimpleVector<int> GenerateVector(size_t size) {
+    cout << "START GenerateVector, size:" << size << endl;
     SimpleVector<int> v(size);
+    cout << "3" << endl;
+    cout << *v.begin() << endl;
+    cout << v.end() << endl;
     iota(v.begin(), v.end(), 1);
+    cout << "END GenerateVector" << endl;
     return v;
 }
 
@@ -149,6 +154,43 @@ void TestNoncopiableErase() {
     cout << "Done!" << endl << endl;
 }
 
+void TestReserveConstructor() {
+    cout << "TestReserveConstructor"s << endl;
+    SimpleVector<int> v(Reserve(5));
+    assert(v.GetCapacity() == 5);
+    assert(v.IsEmpty());
+    cout << "Done!"s << endl;
+}
+
+void TestReserveMethod() {
+    cout << "TestReserveMethod"s << endl;
+    SimpleVector<int> v;
+    // зарезервируем 5 мест в векторе
+    v.Reserve(5);
+    assert(v.GetCapacity() == 5);
+    assert(v.IsEmpty());
+
+    // попытаемся уменьшить capacity до 1
+    v.Reserve(1);
+    // capacity должно остаться прежним
+    assert(v.GetCapacity() == 5);
+    // поместим 10 элементов в вектор
+    for (int i = 0; i < 10; ++i) {
+        v.PushBack(i);
+    }
+    assert(v.GetSize() == 10);
+    // увеличим capacity до 100
+    v.Reserve(100);
+    // проверим, что размер не поменялся
+    assert(v.GetSize() == 10);
+    assert(v.GetCapacity() == 100);
+    // проверим, что элементы на месте
+    for (int i = 0; i < 10; ++i) {
+        assert(v[i] == i);
+    }
+    cout << "Done!"s << endl;
+}
+
 int main() {
     TestTemporaryObjConstructor();
     TestTemporaryObjOperator();
@@ -158,5 +200,7 @@ int main() {
     TestNoncopiablePushBack();
     TestNoncopiableInsert();
     TestNoncopiableErase();
+    TestReserveConstructor();
+    TestReserveMethod();
     return 0;
 }
